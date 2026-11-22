@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>M.5 Stress Folder — Multi-Syllable Pronunciation Evaluator</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Custom touch & print enhancements for Android tablets and phones */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.75; }
+      70% { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(1.15); opacity: 0; }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 1.5s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Toast Notification Banner (Replaces native alert/confirm) -->
+  <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- Top Application Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- App Icon -->
+        <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">M.5 Stress Folder</h1>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Android Ready
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500">Multi-Syllable English Pronunciation &amp; Stress Evaluator (Mobile &amp; Tablet)</p>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <nav aria-label="Progress" class="flex items-center gap-1.5 sm:gap-2 self-start sm:self-auto no-print">
+        <span id="nav-step-1" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-colors">1. Setup</span>
+        <span class="text-slate-300 text-xs">→</span>
+        <span id="nav-step-2" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-500 transition-colors">2. Voice Test</span>
+        <span class="text-slate-300 text-xs">→</span>
+        <span id="nav-step-3" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-500 transition-colors">3. Report</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ===================================================================== -->
+    <!-- STEP 1: STUDENT REGISTRATION & MULTI-SYLLABLE WORD LIST INPUT         -->
+    <!-- ===================================================================== -->
+    <section id="step-1" class="space-y-6">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-8">
+        <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Student Registration &amp; Word List</h2>
+            <p class="text-sm text-slate-500 mt-1">Enter your name and add English words with <strong>at least 2 syllables</strong> for stress and phonetic evaluation.</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold self-start">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1H8a3 3 0 00-3 3v1.5a1.5 1.5 0 01-3 0V6z" clip-rule="evenodd" />
+              <path d="M6 12a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H2h2a2 2 0 002-2v-2z" />
+            </svg>
+            Folder: M.5 Stress folder
+          </span>
+        </div>
+
+        <!-- Student Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-6">
+          <div class="md:col-span-2">
+            <label for="student-name" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Student Full Name <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="student-name"
+              placeholder="e.g., Somchai Jaidee"
+              autocomplete="name"
+              class="w-full min-h-[50px] px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            />
+          </div>
+          <div>
+            <label for="student-class" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Class / Folder / No.
+            </label>
+            <input
+              type="text"
+              id="student-class"
+              value="M.5"
+              placeholder="e.g., M.5/1 No. 12"
+              class="w-full min-h-[50px] px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            />
+          </div>
+        </div>
+
+        <!-- Word Entry Area -->
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <label for="word-input" class="block text-sm font-semibold text-slate-700">
+              Multi-Syllable Vocabulary List <span class="text-slate-400 font-normal">(Minimum 2 syllables per word)</span>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                id="btn-load-sample"
+                class="min-h-[42px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 active:scale-[0.99] border border-indigo-200 transition flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Load M.5 Sample Words
+              </button>
+              <button
+                type="button"
+                id="btn-clear-words"
+                class="min-h-[42px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-[0.99] transition"
+              >
+                Clear List
+              </button>
+            </div>
+          </div>
+
+          <!-- Input Box + Add Button -->
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <textarea
+              id="word-input"
+              rows="2"
+              placeholder="Type words separated by commas or new lines (e.g., computer, important, banana, photograph)..."
+              class="flex-1 px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition resize-none"
+            ></textarea>
+            <button
+              type="button"
+              id="btn-add-words"
+              class="min-h-[52px] sm:w-36 px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-sm sm:text-base shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Add Words
+            </button>
+          </div>
+
+          <!-- Live Syllable Validation & Word Chips Container -->
+          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 min-h-[110px]">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Word Queue (<span id="word-count-badge">0</span> words)
+              </span>
+              <span id="syllable-warning-summary" class="text-xs font-semibold text-rose-600 hidden">
+                ⚠️ Remove 1-syllable words before starting
+              </span>
+            </div>
+
+            <div id="word-chips-container" class="flex flex-wrap gap-2.5">
+              <!-- Populated dynamically -->
+            </div>
+
+            <p id="empty-words-hint" class="text-sm text-slate-400 text-center py-4">
+              No words added yet. Enter multi-syllable words above or tap <strong>"Load M.5 Sample Words"</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Grading Criteria Info Strip -->
+        <div class="mt-6 p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0">1</span>
+            <div>
+              <p class="font-bold text-slate-800">Stress Syllable</p>
+              <p class="text-slate-600">Primary syllable emphasis</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0">2</span>
+            <div>
+              <p class="font-bold text-slate-800">Beginning Sound</p>
+              <p class="text-slate-600">Initial consonant clarity</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0">3</span>
+            <div>
+              <p class="font-bold text-slate-800">Ending Sound</p>
+              <p class="text-slate-600">Final consonant articulation</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0">4</span>
+            <div>
+              <p class="font-bold text-slate-800">Vowel Sound</p>
+              <p class="text-slate-600">Accurate vowel quality</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-slate-500">
+            Pass: <strong>6–10 pts</strong> • Fail: <strong>0–5 pts</strong> • Recordings &lt; 1.5s or unrelated words score <strong>0</strong>.
+          </p>
+          <button
+            type="button"
+            id="btn-start-test"
+            class="w-full sm:w-auto min-h-[54px] px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-base shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2"
+          >
+            <span>Start Pronunciation Test</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 2: VOICE DETECTION & WORD-BY-WORD RECORDING INTERFACE            -->
+    <!-- ===================================================================== -->
+    <section id="step-2" class="hidden space-y-5">
+      <!-- Top Status & Progress Bar -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <span id="test-progress-label" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs sm:text-sm font-bold">
+              Word 1 of 6
+            </span>
+            <span id="test-student-badge" class="text-xs sm:text-sm font-medium text-slate-600">
+              Student: —
+            </span>
+          </div>
+          <button
+            type="button"
+            id="btn-back-to-setup"
+            class="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+          >
+            ← Edit Words
+          </button>
+        </div>
+
+        <!-- Visual Progress Track -->
+        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+          <div id="test-progress-bar" class="h-full bg-indigo-600 rounded-full transition-all duration-300" style="width: 16%"></div>
+        </div>
+
+        <!-- Word Navigator Pills -->
+        <div id="test-word-pills" class="flex items-center gap-2 overflow-x-auto pb-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Active Word Recording Card -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-8 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold mb-3">
+          <span id="current-word-syllables">3 Syllables</span>
+          <span>•</span>
+          <span>Focus: Stress, Beginning, Ending &amp; Vowel</span>
+        </div>
+
+        <!-- Large Target Word Display -->
+        <h2 id="current-target-word" class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 my-2 break-words">
+          computer
+        </h2>
+
+        <!-- Reference Pronunciation Audio Button -->
+        <div class="mt-3 mb-6 flex justify-center">
+          <button
+            type="button"
+            id="btn-listen-ref"
+            class="min-h-[44px] px-4 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-semibold text-sm inline-flex items-center gap-2 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            </svg>
+            <span id="listen-ref-label">Listen to Reference</span>
+          </button>
+        </div>
+
+        <!-- Live Audio Waveform Visualizer & Timer Panel -->
+        <div class="max-w-xl mx-auto bg-slate-900 rounded-2xl p-4 sm:p-5 text-white mb-6 shadow-inner">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span id="mic-status-badge" class="inline-flex items-center gap-1.5 font-semibold text-slate-300">
+              <span id="mic-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+              <span id="mic-status-text">Ready to record</span>
+            </span>
+            <span id="recording-timer" class="font-mono text-lg sm:text-xl font-bold text-slate-200">
+              0.00s
+            </span>
+          </div>
+
+          <!-- Responsive Waveform Canvas -->
+          <div class="w-full h-24 sm:h-28 bg-slate-950/80 rounded-xl overflow-hidden border border-slate-800 relative">
+            <canvas id="waveform-canvas" class="w-full h-full block"></canvas>
+          </div>
+
+          <!-- 1.5s Threshold Indicator Bar -->
+          <div class="mt-3">
+            <div class="flex justify-between text-[11px] font-medium text-slate-400 mb-1">
+              <span>0.00s</span>
+              <span id="threshold-hint" class="text-amber-400">Minimum valid duration: 1.50s</span>
+              <span>3.00s+</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden relative">
+              <!-- 1.5s Marker at 50% -->
+              <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/60 z-10"></div>
+              <div id="duration-meter-bar" class="h-full bg-amber-400 transition-all duration-75" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Touch-Friendly Android Recording Controls -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-2xl mx-auto">
+          <!-- Record Button -->
+          <button
+            type="button"
+            id="btn-record"
+            class="min-h-[58px] px-7 py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none text-white font-bold text-base sm:text-lg shadow-lg shadow-rose-200 transition flex items-center justify-center gap-2.5"
+          >
+            <span class="w-3.5 h-3.5 rounded-full bg-white"></span>
+            <span>Record</span>
+          </button>
+
+          <!-- Stop Button -->
+          <button
+            type="button"
+            id="btn-stop"
+            disabled
+            class="min-h-[58px] px-7 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none text-white font-bold text-base sm:text-lg shadow-md transition flex items-center justify-center gap-2.5"
+          >
+            <span class="w-3.5 h-3.5 rounded-sm bg-rose-400"></span>
+            <span>Stop</span>
+          </button>
+
+          <!-- One-Tap Short Click Test (< 1.5s) Verification Button -->
+          <button
+            type="button"
+            id="btn-simulate-short"
+            class="min-h-[58px] px-5 py-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none text-amber-900 border-2 border-amber-300 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2"
+            title="Verify that recordings shorter than 1.5 seconds immediately receive 0/10 with 'Recording too short'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Simulate Short Click (&lt; 1.5s)</span>
+          </button>
+        </div>
+
+        <!-- AI Processing Spinner State -->
+        <div id="analyzing-panel" class="hidden mt-6 p-5 rounded-2xl bg-indigo-50 border border-indigo-200 max-w-xl mx-auto">
+          <div class="flex items-center justify-center gap-3 text-indigo-800 font-bold text-base">
+            <svg class="animate-spin h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Analyzing pronunciation with Gemini AI...</span>
+          </div>
+          <p class="text-xs text-indigo-600 mt-1.5">Checking Stress Syllable, Beginning Sound, Ending Sound &amp; Vowel Sound</p>
+        </div>
+
+        <!-- Immediate Word Evaluation Result Card -->
+        <div id="word-result-card" class="hidden mt-6 text-left max-w-2xl mx-auto rounded-2xl border-2 p-5 transition-all">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80">
+            <div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span id="res-status-badge" class="px-3 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider">
+                  PASS
+                </span>
+                <span id="res-score-badge" class="font-mono text-xl font-extrabold text-slate-900">
+                  8 / 10
+                </span>
+                <span id="res-syllable-stress" class="text-sm font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-lg">
+                  com-PU-ter
+                </span>
+              </div>
+              <p id="res-detected-speech" class="text-xs text-slate-500 mt-1.5">
+                Detected speech: "computer"
+              </p>
+            </div>
+
+            <!-- Play Student Recording Button -->
+            <button
+              type="button"
+              id="btn-play-student-audio"
+              class="min-h-[44px] px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold text-xs sm:text-sm inline-flex items-center gap-2 shadow-sm self-start sm:self-auto"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              <span>Play My Recording</span>
+            </button>
+          </div>
+
+          <!-- 4 Dimensions Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-4" id="res-dimensions-grid">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Error Identifications & Detailed Feedback -->
+          <div class="space-y-2 bg-white/80 rounded-xl p-3.5 border border-slate-200/70">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Feedback &amp; Error Identification</p>
+            <p id="res-feedback-text" class="text-sm sm:text-base font-semibold text-slate-900">
+              Recording too short
+            </p>
+            <ul id="res-errors-list" class="text-xs text-rose-700 list-disc list-inside space-y-1">
+              <!-- Error items -->
+            </ul>
+          </div>
+
+          <!-- Navigation Controls After Word Result -->
+          <div class="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <button
+              type="button"
+              id="btn-rerecord-word"
+              class="min-h-[48px] px-5 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition"
+            >
+              ↻ Re-record This Word
+            </button>
+            <button
+              type="button"
+              id="btn-next-word"
+              class="min-h-[48px] px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-200 transition flex items-center justify-center gap-2"
+            >
+              <span id="btn-next-word-label">Next Word</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- STEP 3: COMPREHENSIVE RESULTS & SUMMARY TABLES                        -->
+    <!-- ===================================================================== -->
+    <section id="step-3" class="hidden space-y-6">
+      <!-- Report Action Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm print-shadow-none">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 text-xs font-extrabold uppercase">M.5 Stress folder</span>
+            <span id="report-date" class="text-xs text-slate-500"></span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">Pronunciation Assessment Report</h2>
+        </div>
+        <div class="flex flex-wrap gap-2.5 no-print">
+          <button
+            type="button"
+            id="btn-print-report"
+            class="min-h-[46px] px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm inline-flex items-center gap-2 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print / Save Report
+          </button>
+          <button
+            type="button"
+            id="btn-new-test"
+            class="min-h-[46px] px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-200 inline-flex items-center gap-2 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            New Test
+          </button>
+        </div>
+      </div>
+
+      <!-- TABLE 1: OVERALL SUMMARY TABLE -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden print-shadow-none">
+        <div class="px-5 sm:px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+          <h3 class="text-base sm:text-lg font-bold">Overall Summary — M.5 Stress Folder</h3>
+          <span class="text-xs text-slate-300">Pass Criterion: 6–10 / 10</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600">
+                <th class="py-3.5 px-4 sm:px-6">Student Name</th>
+                <th class="py-3.5 px-4">Class / Folder</th>
+                <th class="py-3.5 px-4 text-center">Words Tested</th>
+                <th class="py-3.5 px-4 text-center">Passed (6–10)</th>
+                <th class="py-3.5 px-4 text-center">Failed (0–5)</th>
+                <th class="py-3.5 px-4 text-center">Overall Score</th>
+                <th class="py-3.5 px-4 sm:px-6 text-center">Overall Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-sm sm:text-base">
+              <tr>
+                <td id="sum-student-name" class="py-4 px-4 sm:px-6 font-bold text-slate-900">—</td>
+                <td id="sum-folder" class="py-4 px-4 text-slate-700 font-medium">M.5 Stress folder</td>
+                <td id="sum-total-words" class="py-4 px-4 text-center font-mono font-bold text-slate-800">0</td>
+                <td id="sum-passed-words" class="py-4 px-4 text-center font-mono font-bold text-emerald-600">0</td>
+                <td id="sum-failed-words" class="py-4 px-4 text-center font-mono font-bold text-rose-600">0</td>
+                <td id="sum-overall-score" class="py-4 px-4 text-center font-mono text-lg font-extrabold text-indigo-700">0.0 / 10</td>
+                <td class="py-4 px-4 sm:px-6 text-center">
+                  <span id="sum-overall-status" class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
+                    FAIL
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABLE 2: WORD-BY-WORD ASSESSMENT TABLE -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden print-shadow-none">
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Word-by-Word Pronunciation Evaluation</h3>
+            <p class="text-xs text-slate-500">Detailed breakdown across Stress Syllable, Beginning, Ending, and Vowel Sound</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-semibold">
+            <span class="inline-flex items-center gap-1 text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Pass (6–10)</span>
+            <span class="inline-flex items-center gap-1 text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Fail (0–5)</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[780px]">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600">
+                <th class="py-3.5 px-4 sm:px-5">#</th>
+                <th class="py-3.5 px-4">Target Word &amp; Stress</th>
+                <th class="py-3.5 px-4">4 Dimensions (Stress / Beg / End / Vowel)</th>
+                <th class="py-3.5 px-4 text-center">Score (/10)</th>
+                <th class="py-3.5 px-4 text-center">Pass / Fail</th>
+                <th class="py-3.5 px-4">Error Identifications &amp; Feedback</th>
+                <th class="py-3.5 px-4 sm:px-5 text-center no-print">Audio</th>
+              </tr>
+            </thead>
+            <tbody id="word-results-tbody" class="divide-y divide-slate-200 text-sm align-top">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Hidden Audio Player for Student Recording Playback -->
+  <audio id="playback-audio" class="hidden"></audio>
+
+  <script>
+    /**
+     * ============================================================================
+     * M.5 STRESS FOLDER — PRONUNCIATION ASSESSMENT ENGINE
+     * ============================================================================
+     * Features:
+     * 1. Multi-syllable validator & estimator (>= 2 syllables enforced).
+     * 2. Web Audio API real-time microphone visualizer + MediaRecorder.
+     * 3. Exact millisecond timer with strict < 1.5s short-click verification
+     *    (immediate 0/10 score + "Recording too short" feedback).
+     * 4. Gemini API (gemini-3-flash-preview) acoustic & phonetic evaluation across:
+     *    - Stress Syllable
+     *    - Beginning Sound
+     *    - Ending Sound
+     *    - Vowel Sound
+     *    - Unrelated word detection -> 0/10
+     *    - Unattempted required dimension -> 0/10
+     * 5. Comprehensive Summary & Word-by-Word Assessment Tables.
+     */
+
+    // Gemini API Configuration (Runtime environment automatically injects API key)
+    const apiKey = "";
+    const GEMINI_MODEL = "gemini-3-flash-preview";
+
+    // Curated M.5 Sample Multi-Syllable Words
+    const SAMPLE_WORDS = [
+      "computer",
+      "important",
+      "banana",
+      "photograph",
+      "education",
+      "university"
+    ];
+
+    // Known syllable dictionary for common English words to guarantee high accuracy
+    const SYLLABLE_EXCEPTIONS = {
+      computer: 3,
+      important: 3,
+      banana: 3,
+      photograph: 3,
+      photography: 4,
+      education: 4,
+      university: 5,
+      chocolate: 2,
+      vegetable: 3,
+      comfortable: 3,
+      different: 3,
+      interesting: 3,
+      beautiful: 3,
+      family: 3,
+      library: 3,
+      dictionary: 4,
+      pronunciation: 5,
+      communication: 5,
+      technology: 4,
+      environment: 4,
+      information: 4,
+      application: 4,
+      experience: 4,
+      international: 5,
+      cat: 1,
+      dog: 1,
+      book: 1,
+      pen: 1,
+      school: 1,
+      test: 1,
+      word: 1,
+      stress: 1,
+      sound: 1,
+      voice: 1,
+      apple: 2,
+      table: 2,
+      water: 2,
+      student: 2,
+      teacher: 2,
+      folder: 2,
+      android: 2,
+      tablet: 2,
+      mobile: 2
+    };
+
+    // Application State
+    const state = {
+      studentName: "",
+      studentClass: "M.5",
+      words: [], // Array of strings
+      currentIndex: 0,
+      results: [], // Array of evaluation objects indexed by word index
+      isRecording: false,
+      recordStartTime: 0,
+      timerInterval: null,
+      mediaRecorder: null,
+      audioChunks: [],
+      audioStream: null,
+      audioContext: null,
+      analyser: null,
+      animationFrameId: null,
+      earlyStopTriggered: false
+    };
+
+    // DOM Elements
+    const el = {
+      step1: document.getElementById("step-1"),
+      step2: document.getElementById("step-2"),
+      step3: document.getElementById("step-3"),
+      navStep1: document.getElementById("nav-step-1"),
+      navStep2: document.getElementById("nav-step-2"),
+      navStep3: document.getElementById("nav-step-3"),
+
+      studentName: document.getElementById("student-name"),
+      studentClass: document.getElementById("student-class"),
+      wordInput: document.getElementById("word-input"),
+      btnLoadSample: document.getElementById("btn-load-sample"),
+      btnClearWords: document.getElementById("btn-clear-words"),
+      btnAddWords: document.getElementById("btn-add-words"),
+      wordChipsContainer: document.getElementById("word-chips-container"),
+      wordCountBadge: document.getElementById("word-count-badge"),
+      syllableWarningSummary: document.getElementById("syllable-warning-summary"),
+      emptyWordsHint: document.getElementById("empty-words-hint"),
+      btnStartTest: document.getElementById("btn-start-test"),
+
+      testProgressLabel: document.getElementById("test-progress-label"),
+      testStudentBadge: document.getElementById("test-student-badge"),
+      testProgressBar: document.getElementById("test-progress-bar"),
+      testWordPills: document.getElementById("test-word-pills"),
+      btnBackToSetup: document.getElementById("btn-back-to-setup"),
+
+      currentWordSyllables: document.getElementById("current-word-syllables"),
+      currentTargetWord: document.getElementById("current-target-word"),
+      btnListenRef: document.getElementById("btn-listen-ref"),
+      listenRefLabel: document.getElementById("listen-ref-label"),
+
+      micStatusBadge: document.getElementById("mic-status-badge"),
+      micStatusDot: document.getElementById("mic-status-dot"),
+      micStatusText: document.getElementById("mic-status-text"),
+      recordingTimer: document.getElementById("recording-timer"),
+      waveformCanvas: document.getElementById("waveform-canvas"),
+      thresholdHint: document.getElementById("threshold-hint"),
+      durationMeterBar: document.getElementById("duration-meter-bar"),
+
+      btnRecord: document.getElementById("btn-record"),
+      btnStop: document.getElementById("btn-stop"),
+      btnSimulateShort: document.getElementById("btn-simulate-short"),
+
+      analyzingPanel: document.getElementById("analyzing-panel"),
+      wordResultCard: document.getElementById("word-result-card"),
+      resStatusBadge: document.getElementById("res-status-badge"),
+      resScoreBadge: document.getElementById("res-score-badge"),
+      resSyllableStress: document.getElementById("res-syllable-stress"),
+      resDetectedSpeech: document.getElementById("res-detected-speech"),
+      btnPlayStudentAudio: document.getElementById("btn-play-student-audio"),
+      resDimensionsGrid: document.getElementById("res-dimensions-grid"),
+      resFeedbackText: document.getElementById("res-feedback-text"),
+      resErrorsList: document.getElementById("res-errors-list"),
+      btnRerecordWord: document.getElementById("btn-rerecord-word"),
+      btnNextWord: document.getElementById("btn-next-word"),
+      btnNextWordLabel: document.getElementById("btn-next-word-label"),
+
+      reportDate: document.getElementById("report-date"),
+      btnPrintReport: document.getElementById("btn-print-report"),
+      btnNewTest: document.getElementById("btn-new-test"),
+      sumStudentName: document.getElementById("sum-student-name"),
+      sumFolder: document.getElementById("sum-folder"),
+      sumTotalWords: document.getElementById("sum-total-words"),
+      sumPassedWords: document.getElementById("sum-passed-words"),
+      sumFailedWords: document.getElementById("sum-failed-words"),
+      sumOverallScore: document.getElementById("sum-overall-score"),
+      sumOverallStatus: document.getElementById("sum-overall-status"),
+      wordResultsTbody: document.getElementById("word-results-tbody"),
+      playbackAudio: document.getElementById("playback-audio")
+    };
+
+    /**
+     * ============================================================================
+     * UTILITY FUNCTIONS
+     * ============================================================================
+     */
+
+    // Custom Toast Notification (Never uses alert() or confirm())
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const styles = {
+        info: "bg-slate-900 text-white border-slate-700",
+        success: "bg-emerald-700 text-white border-emerald-600",
+        warning: "bg-amber-600 text-white border-amber-500",
+        error: "bg-rose-700 text-white border-rose-600"
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-lg text-sm font-medium flex items-center justify-between gap-3 transition-all duration-300 transform translate-y-0 opacity-100 ${styles[type] || styles.info}`;
+      toast.innerHTML = `
+        <span>${escapeHtml(message)}</span>
+        <button type="button" class="text-white/80 hover:text-white font-bold text-base leading-none">&times;</button>
+      `;
+      toast.querySelector("button").addEventListener("click", () => toast.remove());
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-8px)";
+        setTimeout(() => toast.remove(), 300);
+      }, 3800);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /**
+     * Estimates English syllable count for a given word.
+     * Uses dictionary lookup + phonetic vowel-group heuristics.
+     */
+    function estimateSyllables(rawWord) {
+      const clean = rawWord.toLowerCase().replace(/[^a-z]/g, "");
+      if (!clean) return 0;
+      if (SYLLABLE_EXCEPTIONS[clean] !== undefined) {
+        return SYLLABLE_EXCEPTIONS[clean];
+      }
+      if (clean.length <= 3) return 1;
+
+      let word = clean;
+      // Remove silent trailing 'e', 'es', 'ed' (when not preceded by t/d or consonant+le)
+      word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "");
+      word = word.replace(/^y/, "");
+
+      const vowelGroups = word.match(/[aeiouy]{1,2}/g);
+      let count = vowelGroups ? vowelGroups.length : 1;
+
+      // Add syllable for consonant + 'le' endings (e.g., ta-ble, ap-ple)
+      if (/[^aeiouy]le$/.test(clean)) {
+        count += 1;
+      }
+      // Adjust for common multi-syllable suffixes like -tion, -sion, -ia, -io
+      if (/ia|io/.test(clean) && !/tion|sion/.test(clean)) {
+        count += 1;
+      }
+      return Math.max(1, count);
+    }
+
+    // Switch visible step (1, 2, or 3)
+    function goToStep(stepNumber) {
+      el.step1.classList.toggle("hidden", stepNumber !== 1);
+      el.step2.classList.toggle("hidden", stepNumber !== 2);
+      el.step3.classList.toggle("hidden", stepNumber !== 3);
+
+      const navs = [el.navStep1, el.navStep2, el.navStep3];
+      navs.forEach((nav, idx) => {
+        const active = idx + 1 === stepNumber;
+        const completed = idx + 1 < stepNumber;
+        nav.className = active
+          ? "px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-colors"
+          : completed
+          ? "px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-800 transition-colors"
+          : "px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-500 transition-colors";
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (stepNumber === 2) {
+        resizeCanvas();
+        drawIdleWaveform();
+      }
+    }
+
+    /**
+     * ============================================================================
+     * STEP 1: WORD LIST MANAGEMENT & VALIDATION
+     * ============================================================================
+     */
+
+    function parseAndAddWords(rawText) {
+      const tokens = rawText
+        .split(/[\n,;]+/)
+        .map((w) => w.trim().replace(/[^a-zA-Z'-]/g, ""))
+        .filter((w) => w.length > 0);
+
+      if (tokens.length === 0) {
+        showToast("Please enter at least one English word.", "warning");
+        return;
+      }
+
+      let addedCount = 0;
+      let singleSyllableCount = 0;
+
+      tokens.forEach((token) => {
+        const normalized = token.toLowerCase();
+        // Avoid duplicates
+        if (!state.words.some((existing) => existing.toLowerCase() === normalized)) {
+          state.words.push(token);
+          addedCount++;
+          if (estimateSyllables(token) < 2) {
+            singleSyllableCount++;
+          }
+        }
+      });
+
+      el.wordInput.value = "";
+      renderWordChips();
+
+      if (singleSyllableCount > 0) {
+        showToast("Warning: Words must have at least 2 syllables. Please remove highlighted 1-syllable words.", "warning");
+      } else if (addedCount > 0) {
+        showToast(`Added ${addedCount} multi-syllable word${addedCount > 1 ? "s" : ""}.`, "success");
+      } else {
+        showToast("Word(s) already in your list.", "info");
+      }
+    }
+
+    function removeWordAt(index) {
+      state.words.splice(index, 1);
+      renderWordChips();
+    }
+
+    function renderWordChips() {
+      el.wordCountBadge.textContent = state.words.length;
+      el.wordChipsContainer.innerHTML = "";
+
+      if (state.words.length === 0) {
+        el.emptyWordsHint.classList.remove("hidden");
+        el.syllableWarningSummary.classList.add("hidden");
+        return;
+      }
+
+      el.emptyWordsHint.classList.add("hidden");
+      let hasInvalidSyllable = false;
+
+      state.words.forEach((word, idx) => {
+        const syllables = estimateSyllables(word);
+        const isValid = syllables >= 2;
+        if (!isValid) hasInvalidSyllable = true;
+
+        const chip = document.createElement("div");
+        chip.className = isValid
+          ? "inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-xl bg-white border border-slate-200 shadow-xs text-sm"
+          : "inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-xl bg-rose-50 border-2 border-rose-300 text-rose-900 text-sm";
+
+        chip.innerHTML = `
+          <span class="font-bold">${escapeHtml(word)}</span>
+          <span class="px-2 py-0.5 rounded-lg text-xs font-semibold ${
+            isValid ? "bg-emerald-50 text-emerald-700" : "bg-rose-200 text-rose-900"
+          }">
+            ${syllables} syl ${isValid ? "✓" : "⚠️ <2"}
+          </span>
+          <button
+            type="button"
+            aria-label="Remove ${escapeHtml(word)}"
+            class="w-7 h-7 rounded-lg hover:bg-slate-200/80 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold transition"
+          >
+            &times;
+          </button>
+        `;
+        chip.querySelector("button").addEventListener("click", () => removeWordAt(idx));
+        el.wordChipsContainer.appendChild(chip);
+      });
+
+      el.syllableWarningSummary.classList.toggle("hidden", !hasInvalidSyllable);
+    }
+
+    /**
+     * ============================================================================
+     * STEP 2: AUDIO VISUALIZER, SPEECH SYNTHESIS & RECORDING LOGIC
+     * ============================================================================
+     */
+
+    function resizeCanvas() {
+      const canvas = el.waveformCanvas;
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(200, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(80, Math.floor(rect.height * dpr));
+    }
+
+    function drawIdleWaveform() {
+      const canvas = el.waveformCanvas;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Draw subtle center baseline
+      ctx.strokeStyle = "#334155";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      // Draw idle bar placeholders
+      const bars = 36;
+      const gap = w / bars;
+      ctx.fillStyle = "#475569";
+      for (let i = 0; i < bars; i++) {
+        const barH = 8 + Math.sin(i * 0.45) * 4;
+        const x = i * gap + gap * 0.25;
+        const barW = gap * 0.5;
+        ctx.fillRect(x, h / 2 - barH / 2, barW, barH);
+      }
+    }
+
+    function startWaveformLoop() {
+      const canvas = el.waveformCanvas;
+      const ctx = canvas.getContext("2d");
+      const bufferLength = state.analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function renderFrame() {
+        if (!state.isRecording) return;
+        state.animationFrameId = requestAnimationFrame(renderFrame);
+
+        state.analyser.getByteFrequencyData(dataArray);
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const bars = 40;
+        const step = Math.max(1, Math.floor(bufferLength / bars));
+        const barSlot = w / bars;
+
+        for (let i = 0; i < bars; i++) {
+          const val = dataArray[i * step] || 0;
+          const normalized = val / 255;
+          const barHeight = Math.max(8, normalized * (h * 0.85));
+          const x = i * barSlot + barSlot * 0.2;
+          const barWidth = barSlot * 0.6;
+          const y = (h - barHeight) / 2;
+
+          // Color shifts from amber (<1.5s) to emerald (>=1.5s)
+          const elapsed = performance.now() - state.recordStartTime;
+          ctx.fillStyle = elapsed >= 1500 ? "#10b981" : "#f59e0b";
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(x, y, barWidth, barHeight, 4);
+          } else {
+            ctx.rect(x, y, barWidth, barHeight);
+          }
+          ctx.fill();
+        }
+      }
+      renderFrame();
+    }
+
+    function speakReferenceWord(word) {
+      if (!("speechSynthesis" in window)) {
+        showToast("Text-to-speech is not supported on this browser.", "warning");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.88; // Slightly slower for clear syllable & stress modeling
+      utterance.onstart = () => {
+        el.listenRefLabel.textContent = "Playing Reference...";
+      };
+      utterance.onend = () => {
+        el.listenRefLabel.textContent = "Listen to Reference";
+      };
+      utterance.onerror = () => {
+        el.listenRefLabel.textContent = "Listen to Reference";
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderTestWorkspace() {
+      const total = state.words.length;
+      const idx = state.currentIndex;
+      const currentWord = state.words[idx];
+      const syllables = estimateSyllables(currentWord);
+
+      el.testProgressLabel.textContent = `Word ${idx + 1} of ${total}`;
+      el.testStudentBadge.textContent = `Student: ${state.studentName} (${state.studentClass})`;
+      el.testProgressBar.style.width = `${Math.round(((idx + 1) / total) * 100)}%`;
+
+      el.currentWordSyllables.textContent = `${syllables} Syllables`;
+      el.currentTargetWord.textContent = currentWord;
+
+      // Render word pills
+      el.testWordPills.innerHTML = "";
+      state.words.forEach((w, i) => {
+        const res = state.results[i];
+        const isCurrent = i === idx;
+        const pill = document.createElement("button");
+        pill.type = "button";
+        let pillClass = "px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 border transition ";
+        if (isCurrent) {
+          pillClass += "bg-indigo-600 text-white border-indigo-600 shadow-xs";
+        } else if (res) {
+          pillClass +=
+            res.status === "PASS"
+              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+              : "bg-rose-50 text-rose-800 border-rose-200";
+        } else {
+          pillClass += "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100";
+        }
+        pill.className = pillClass;
+        pill.textContent = `${i + 1}. ${w}${res ? ` (${res.score}/10)` : ""}`;
+        pill.addEventListener("click", () => {
+          if (state.isRecording) return;
+          state.currentIndex = i;
+          renderTestWorkspace();
+        });
+        el.testWordPills.appendChild(pill);
+      });
+
+      // Reset timer & meter UI
+      resetRecorderUI();
+
+      // Show existing result card if this word was already evaluated
+      const existingResult = state.results[idx];
+      if (existingResult) {
+        displayWordResultCard(existingResult);
+      } else {
+        el.wordResultCard.classList.add("hidden");
+      }
+
+      // Update Next button label
+      el.btnNextWordLabel.textContent =
+        idx === total - 1 ? "Finish & View Summary Table" : "Next Word";
+    }
+
+    function resetRecorderUI() {
+      el.recordingTimer.textContent = "0.00s";
+      el.recordingTimer.className = "font-mono text-lg sm:text-xl font-bold text-slate-200";
+      el.durationMeterBar.style.width = "0%";
+      el.durationMeterBar.className = "h-full bg-amber-400 transition-all duration-75";
+      el.thresholdHint.textContent = "Minimum valid duration: 1.50s";
+      el.thresholdHint.className = "text-amber-400";
+      el.micStatusDot.className = "w-2.5 h-2.5 rounded-full bg-slate-500";
+      el.micStatusText.textContent = "Ready to record";
+      el.btnRecord.disabled = false;
+      el.btnStop.disabled = true;
+      el.btnSimulateShort.disabled = false;
+      el.analyzingPanel.classList.add("hidden");
+      drawIdleWaveform();
+    }
+
+    function updateLiveTimer() {
+      if (!state.isRecording) return;
+      const elapsedMs = performance.now() - state.recordStartTime;
+      const seconds = elapsedMs / 1000;
+      el.recordingTimer.textContent = `${seconds.toFixed(2)}s`;
+
+      // Meter scales up to 3.00s (1.50s = 50% mark)
+      const pct = Math.min(100, (seconds / 3.0) * 100);
+      el.durationMeterBar.style.width = `${pct}%`;
+
+      if (elapsedMs >= 1500) {
+        el.recordingTimer.className = "font-mono text-lg sm:text-xl font-bold text-emerald-400";
+        el.durationMeterBar.className = "h-full bg-emerald-500 transition-all duration-75";
+        el.thresholdHint.textContent = "Valid duration reached (≥ 1.50s) ✓";
+        el.thresholdHint.className = "text-emerald-400 font-semibold";
+      } else {
+        el.recordingTimer.className = "font-mono text-lg sm:text-xl font-bold text-amber-400";
+      }
+    }
+
+    /**
+     * Starts real microphone capture using getUserMedia + MediaRecorder + Web Audio API.
+     */
+    async function startRecording() {
+      if (state.isRecording) return;
+
+      // Start exact timer immediately on tap so fast Record -> Stop (< 1.5s) is measured accurately
+      state.isRecording = true;
+      state.earlyStopTriggered = false;
+      state.recordStartTime = performance.now();
+      state.audioChunks = [];
+
+      el.wordResultCard.classList.add("hidden");
+      el.btnRecord.disabled = true;
+      el.btnStop.disabled = false;
+      el.btnSimulateShort.disabled = true;
+      el.micStatusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping";
+      el.micStatusText.textContent = "Listening & Recording...";
+
+      state.timerInterval = setInterval(updateLiveTimer, 25);
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Microphone API is unavailable in this browser context.");
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+
+        // Handle race condition if user tapped Stop in < 1.5s while getUserMedia was opening
+        if (state.earlyStopTriggered || !state.isRecording) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        state.audioStream = stream;
+
+        // Setup Web Audio API AnalyserNode for real-time Android waveform visualization
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        state.audioContext = new AudioCtx();
+        if (state.audioContext.state === "suspended") {
+          await state.audioContext.resume();
+        }
+        const source = state.audioContext.createMediaStreamSource(stream);
+        state.analyser = state.audioContext.createAnalyser();
+        state.analyser.fftSize = 256;
+        source.connect(state.analyser);
+        startWaveformLoop();
+
+        // Select best supported audio MIME type for Android Chrome / Safari / WebView
+        const preferredTypes = [
+          "audio/webm;codecs=opus",
+          "audio/webm",
+          "audio/mp4",
+          "audio/ogg;codecs=opus"
+        ];
+        const supportedMimeType =
+          preferredTypes.find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
+
+        const recorderOptions = supportedMimeType ? { mimeType: supportedMimeType } : undefined;
+        const mediaRecorder = new MediaRecorder(stream, recorderOptions);
+        state.mediaRecorder = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            state.audioChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.start(100);
+      } catch (err) {
+        cleanupAudioResources();
+        state.isRecording = false;
+        clearInterval(state.timerInterval);
+        resetRecorderUI();
+        showToast(
+          `Microphone access error: ${err.message || "Please allow microphone permissions in Android browser settings."}`,
+          "error"
+        );
+      }
+    }
+
+    /**
+     * Stops recording and enforces the strict < 1.5 second rule before AI analysis.
+     */
+    async function stopRecording() {
+      if (!state.isRecording) return;
+
+      const durationMs = performance.now() - state.recordStartTime;
+      state.isRecording = false;
+      state.earlyStopTriggered = true;
+      clearInterval(state.timerInterval);
+
+      if (state.animationFrameId) {
+        cancelAnimationFrame(state.animationFrameId);
+      }
+
+      el.btnStop.disabled = true;
+      el.micStatusDot.className = "w-2.5 h-2.5 rounded-full bg-slate-400";
+      el.micStatusText.textContent = "Processing capture...";
+
+      // Capture audio blob if MediaRecorder started
+      let audioBlob = null;
+      let cleanMimeType = "audio/webm";
+
+      if (state.mediaRecorder && state.mediaRecorder.state !== "inactive") {
+        audioBlob = await new Promise((resolve) => {
+          state.mediaRecorder.onstop = () => {
+            const rawType = state.mediaRecorder.mimeType || "audio/webm";
+            cleanMimeType = rawType.split(";")[0];
+            resolve(new Blob(state.audioChunks, { type: cleanMimeType }));
+          };
+          state.mediaRecorder.stop();
+        });
+      }
+
+      cleanupAudioResources();
+      drawIdleWaveform();
+
+      // STRICT RULE: Short Click Test (< 1.5 seconds -> 1500 ms)
+      if (durationMs < 1500) {
+        handleShortClickFailure(durationMs);
+        return;
+      }
+
+      // Valid duration (>= 1.5 seconds): Evaluate pronunciation with Gemini API
+      if (!audioBlob || audioBlob.size === 0) {
+        resetRecorderUI();
+        showToast("No audio data captured. Please try recording again.", "warning");
+        return;
+      }
+
+      await evaluateAudioWithGemini(audioBlob, cleanMimeType, durationMs);
+    }
+
+    function cleanupAudioResources() {
+      if (state.audioStream) {
+        state.audioStream.getTracks().forEach((track) => track.stop());
+        state.audioStream = null;
+      }
+      if (state.audioContext) {
+        state.audioContext.close().catch(() => {});
+        state.audioContext = null;
+      }
+    }
+
+    /**
+     * Handles the Short Click Test (< 1.5s):
+     * Immediately assigns Score = 0 / 10, Status = FAIL, and Feedback = "Recording too short".
+     */
+    function handleShortClickFailure(durationMs) {
+      const targetWord = state.words[state.currentIndex];
+      const secondsStr = (durationMs / 1000).toFixed(2);
+
+      el.recordingTimer.textContent = `${secondsStr}s`;
+      el.recordingTimer.className = "font-mono text-lg sm:text-xl font-bold text-rose-400";
+      el.micStatusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+      el.micStatusText.textContent = `Rejected (${secondsStr}s < 1.50s)`;
+      el.btnRecord.disabled = false;
+      el.btnSimulateShort.disabled = false;
+
+      const shortClickResult = {
+        word: targetWord,
+        durationSeconds: Number(secondsStr),
+        audioUrl: null,
+        score: 0,
+        status: "FAIL",
+        syllableStressDisplay: targetWord,
+        detectedSpeech: `(Recording stopped at ${secondsStr}s — under 1.50s threshold)`,
+        isUnrelatedWord: false,
+        unattemptedDimension: true,
+        dimensions: {
+          stress: { passed: false, note: "Not evaluated (< 1.5s)" },
+          beginning: { passed: false, note: "Not evaluated (< 1.5s)" },
+          ending: { passed: false, note: "Not evaluated (< 1.5s)" },
+          vowel: { passed: false, note: "Not evaluated (< 1.5s)" }
+        },
+        errorIdentifications: [
+          `Recording duration (${secondsStr}s) is less than the required 1.50s minimum.`
+        ],
+        feedback: "Recording too short"
+      };
+
+      state.results[state.currentIndex] = shortClickResult;
+      renderTestWorkspace();
+      displayWordResultCard(shortClickResult);
+      showToast(`Short click detected (${secondsStr}s < 1.5s): Score 0/10 — "Recording too short"`, "error");
+    }
+
+    /**
+     * One-tap evaluator helper to simulate a short click (< 1.5s) directly.
+     */
+    function simulateShortClickTest() {
+      if (state.isRecording) return;
+      const simulatedDurationMs = 420; // 0.42s (< 1.50s)
+      el.durationMeterBar.style.width = `${(0.42 / 3.0) * 100}%`;
+      el.durationMeterBar.className = "h-full bg-rose-500";
+      handleShortClickFailure(simulatedDurationMs);
+    }
+
+    /**
+     * Converts Blob to Base64 string (without data URL prefix).
+     */
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result || "";
+          const base64 = result.split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    /**
+     * Calls Gemini API (gemini-3-flash-preview) with exponential backoff to grade
+     * the multi-syllable pronunciation across all 4 required dimensions.
+     */
+    async function evaluateAudioWithGemini(audioBlob, mimeType, durationMs) {
+      const targetWord = state.words[state.currentIndex];
+      const estimatedSyl = estimateSyllables(targetWord);
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      el.analyzingPanel.classList.remove("hidden");
+      el.btnRecord.disabled = true;
+      el.btnStop.disabled = true;
+      el.btnSimulateShort.disabled = true;
+
+      try {
+        const base64Audio = await blobToBase64(audioBlob);
+
+        const systemInstruction = `You are a strict, expert English pronunciation examiner grading high school M.5 students on multi-syllable English words.
+Evaluate the student's audio recording against the target English word across four mandatory dimensions:
+1. Stress Syllable (primary syllable stress placement)
+2. Beginning Sound (initial consonant/onset articulation)
+3. Ending Sound (final consonant/coda articulation)
+4. Vowel Sound (core vowel quality and length across syllables)
+
+MANDATORY ZERO-SCORE RULES (STRICTLY ENFORCE):
+- RULE A (Unrelated Word): Listen carefully to what the student actually spoke. If the student pronounced an unrelated word instead of the target word (for example, saying "dog" instead of "cat", or saying any other word that is not an attempt at the target word), you MUST set isUnrelatedWord = true, score = 0, status = "FAIL", identify the unrelated word spoken in detectedSpeech and errorIdentifications, and explain that an unrelated word was spoken.
+- RULE B (Unattempted / Missing Dimension): If the student failed to pronounce or attempt along with the target word AT LEAST ONE of the four required dimensions (e.g., silence/noise only, missing beginning consonant, missing ending consonant, missing/unrecognizable vowel sound, or completely missing/flat syllable stress), you MUST set unattemptedDimension = true, score = 0, status = "FAIL", mark the failed dimension(s) as passed = false, and specify which dimension(s) were not attempted/pronounced.
+
+SCORING RUBRIC (0 to 10):
+- 0: Unrelated word spoken, OR silence/noise, OR at least one required dimension (stress, beginning, ending, vowel) was not attempted/pronounced.
+- 1 to 5 (FAIL): Student attempted the target word and all 4 dimensions, but made significant errors in syllable stress, consonants, or vowel quality.
+- 6 to 7 (PASS): Intelligible pronunciation with correct primary stress and recognizable consonants/vowels, though minor accent or vowel flaws remain.
+- 8 to 9 (PASS): Clear, accurate pronunciation across stress, beginning, ending, and vowel sounds with only minor imperfection.
+- 10 (PASS): Native-like accuracy across all four dimensions.
+
+Always set status to "PASS" if score is 6 to 10, and "FAIL" if score is 0 to 5.`;
+
+        const userPrompt = `Target Word: "${targetWord}" (Expected syllables: ${estimatedSyl}).
+Analyze the attached student audio recording and return a JSON evaluation.`;
+
+        const payload = {
+          systemInstruction: {
+            parts: [{ text: systemInstruction }]
+          },
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: userPrompt },
+                {
+                  inlineData: {
+                    mimeType: mimeType || "audio/webm",
+                    data: base64Audio
+                  }
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                score: {
+                  type: "INTEGER",
+                  description: "Integer score from 0 to 10."
+                },
+                status: {
+                  type: "STRING",
+                  description: "PASS if score is 6-10, FAIL if score is 0-5."
+                },
+                syllableStressDisplay: {
+                  type: "STRING",
+                  description: "Target word broken into syllables with primary stress in UPPERCASE, e.g., com-PU-ter."
+                },
+                detectedSpeech: {
+                  type: "STRING",
+                  description: "Transcription or phonetic description of what was heard in the audio."
+                },
+                isUnrelatedWord: {
+                  type: "BOOLEAN",
+                  description: "True if the speaker said a different/unrelated word instead of the target word."
+                },
+                unattemptedDimension: {
+                  type: "BOOLEAN",
+                  description: "True if the speaker failed to attempt/pronounce at least one required dimension (stress, beginning, ending, vowel) or audio was silence/noise."
+                },
+                dimensions: {
+                  type: "OBJECT",
+                  properties: {
+                    stress: {
+                      type: "OBJECT",
+                      properties: {
+                        passed: { type: "BOOLEAN" },
+                        note: { type: "STRING" }
+                      },
+                      required: ["passed", "note"]
+                    },
+                    beginning: {
+                      type: "OBJECT",
+                      properties: {
+                        passed: { type: "BOOLEAN" },
+                        note: { type: "STRING" }
+                      },
+                      required: ["passed", "note"]
+                    },
+                    ending: {
+                      type: "OBJECT",
+                      properties: {
+                        passed: { type: "BOOLEAN" },
+                        note: { type: "STRING" }
+                      },
+                      required: ["passed", "note"]
+                    },
+                    vowel: {
+                      type: "OBJECT",
+                      properties: {
+                        passed: { type: "BOOLEAN" },
+                        note: { type: "STRING" }
+                      },
+                      required: ["passed", "note"]
+                    }
+                  },
+                  required: ["stress", "beginning", "ending", "vowel"]
+                },
+                errorIdentifications: {
+                  type: "ARRAY",
+                  items: { type: "STRING" },
+                  description: "List of specific pronunciation errors identified (empty if score is 10)."
+                },
+                feedback: {
+                  type: "STRING",
+                  description: "Clear, constructive word-by-word feedback summarizing performance and how to improve."
+                }
+              },
+              required: [
+                "score",
+                "status",
+                "syllableStressDisplay",
+                "detectedSpeech",
+                "isUnrelatedWord",
+                "unattemptedDimension",
+                "dimensions",
+                "errorIdentifications",
+                "feedback"
+              ]
+            }
+          }
+        };
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+        const apiResponse = await fetchWithExponentialBackoff(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const rawText = apiResponse?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) {
+          throw new Error("Empty response from Gemini pronunciation evaluator.");
+        }
+
+        const parsed = JSON.parse(rawText);
+
+        // Enforce deterministic consistency on score & pass/fail rules
+        let finalScore = Math.max(0, Math.min(10, Math.round(Number(parsed.score) || 0)));
+        if (parsed.isUnrelatedWord || parsed.unattemptedDimension) {
+          finalScore = 0;
+        }
+        const finalStatus = finalScore >= 6 ? "PASS" : "FAIL";
+
+        const evaluationRecord = {
+          word: targetWord,
+          durationSeconds: Number((durationMs / 1000).toFixed(2)),
+          audioUrl,
+          score: finalScore,
+          status: finalStatus,
+          syllableStressDisplay: parsed.syllableStressDisplay || targetWord,
+          detectedSpeech: parsed.detectedSpeech || targetWord,
+          isUnrelatedWord: Boolean(parsed.isUnrelatedWord),
+          unattemptedDimension: Boolean(parsed.unattemptedDimension),
+          dimensions: parsed.dimensions,
+          errorIdentifications: Array.isArray(parsed.errorIdentifications)
+            ? parsed.errorIdentifications
+            : [],
+          feedback: parsed.feedback || (finalStatus === "PASS" ? "Good pronunciation." : "Needs improvement.")
+        };
+
+        state.results[state.currentIndex] = evaluationRecord;
+        el.analyzingPanel.classList.add("hidden");
+        renderTestWorkspace();
+        displayWordResultCard(evaluationRecord);
+      } catch (err) {
+        el.analyzingPanel.classList.add("hidden");
+        resetRecorderUI();
+        showToast(`Evaluation error: ${err.message || "Unable to analyze audio. Please try again."}`, "error");
+      }
+    }
+
+    /**
+     * Fetch wrapper with exponential backoff (1s, 2s, 4s, 8s) for API resilience.
+     */
+    async function fetchWithExponentialBackoff(url, options, maxRetries = 4) {
+      let delay = 1000;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) {
+            if ((response.status === 429 || response.status >= 500) && attempt < maxRetries) {
+              await new Promise((r) => setTimeout(r, delay));
+              delay *= 2;
+              continue;
+            }
+            const errBody = await response.text();
+            throw new Error(`API status ${response.status}: ${errBody.slice(0, 120)}`);
+          }
+          return await response.json();
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          await new Promise((r) => setTimeout(r, delay));
+          delay *= 2;
+        }
+      }
+    }
+
+    /**
+     * Renders the immediate word evaluation result card below the recorder.
+     */
+    function displayWordResultCard(res) {
+      const isPass = res.status === "PASS";
+      el.wordResultCard.classList.remove("hidden", "border-emerald-300", "bg-emerald-50/40", "border-rose-300", "bg-rose-50/40");
+      el.wordResultCard.classList.add(
+        isPass ? "border-emerald-300" : "border-rose-300",
+        isPass ? "bg-emerald-50/40" : "bg-rose-50/40"
+      );
+
+      el.resStatusBadge.textContent = res.status;
+      el.resStatusBadge.className = isPass
+        ? "px-3 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-emerald-600 text-white"
+        : "px-3 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-rose-600 text-white";
+
+      el.resScoreBadge.textContent = `${res.score} / 10`;
+      el.resSyllableStress.textContent = res.syllableStressDisplay;
+      el.resDetectedSpeech.textContent = `Detected speech: ${res.detectedSpeech}`;
+
+      // Toggle audio playback button visibility
+      if (res.audioUrl) {
+        el.btnPlayStudentAudio.classList.remove("hidden");
+        el.btnPlayStudentAudio.onclick = () => playRecordedAudio(res.audioUrl);
+      } else {
+        el.btnPlayStudentAudio.classList.add("hidden");
+      }
+
+      // Render 4 Dimension Cards
+      const dimEntries = [
+        { key: "stress", label: "Stress Syllable", data: res.dimensions.stress },
+        { key: "beginning", label: "Beginning Sound", data: res.dimensions.beginning },
+        { key: "ending", label: "Ending Sound", data: res.dimensions.ending },
+        { key: "vowel", label: "Vowel Sound", data: res.dimensions.vowel }
+      ];
+
+      el.resDimensionsGrid.innerHTML = "";
+      dimEntries.forEach((item) => {
+        const ok = item.data && item.data.passed;
+        const card = document.createElement("div");
+        card.className = ok
+          ? "p-2.5 rounded-xl bg-white border border-emerald-200"
+          : "p-2.5 rounded-xl bg-white border border-rose-200";
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-1 mb-1">
+            <span class="text-xs font-bold text-slate-700">${escapeHtml(item.label)}</span>
+            <span class="text-xs font-extrabold ${ok ? "text-emerald-600" : "text-rose-600"}">
+              ${ok ? "✓ PASS" : "✗ FAIL"}
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-snug">${escapeHtml(item.data?.note || "")}</p>
+        `;
+        el.resDimensionsGrid.appendChild(card);
+      });
+
+      // Feedback & Error list
+      el.resFeedbackText.textContent = res.feedback;
+      el.resFeedbackText.className = isPass
+        ? "text-sm sm:text-base font-bold text-emerald-900"
+        : "text-sm sm:text-base font-bold text-rose-900";
+
+      el.resErrorsList.innerHTML = "";
+      if (res.errorIdentifications && res.errorIdentifications.length > 0) {
+        el.resErrorsList.classList.remove("hidden");
+        res.errorIdentifications.forEach((errText) => {
+          const li = document.createElement("li");
+          li.textContent = errText;
+          el.resErrorsList.appendChild(li);
+        });
+      } else {
+        el.resErrorsList.classList.add("hidden");
+      }
+    }
+
+    function playRecordedAudio(url) {
+      if (!url) return;
+      el.playbackAudio.src = url;
+      el.playbackAudio.play().catch(() => {
+        showToast("Unable to play audio clip on this device.", "warning");
+      });
+    }
+
+    /**
+     * ============================================================================
+     * STEP 3: COMPREHENSIVE RESULTS & SUMMARY TABLES
+     * ============================================================================
+     */
+
+    function renderFinalReport() {
+      const totalWords = state.words.length;
+      let passedCount = 0;
+      let failedCount = 0;
+      let totalScoreSum = 0;
+
+      // Build Word-by-Word Table Rows
+      el.wordResultsTbody.innerHTML = "";
+
+      state.words.forEach((word, index) => {
+        const res = state.results[index] || {
+          word,
+          score: 0,
+          status: "FAIL",
+          syllableStressDisplay: word,
+          detectedSpeech: "Not attempted",
+          dimensions: {
+            stress: { passed: false, note: "Not attempted" },
+            beginning: { passed: false, note: "Not attempted" },
+            ending: { passed: false, note: "Not attempted" },
+            vowel: { passed: false, note: "Not attempted" }
+          },
+          errorIdentifications: ["Word was not recorded."],
+          feedback: "Not attempted (0/10)"
+        };
+
+        const isPass = res.status === "PASS";
+        if (isPass) passedCount++;
+        else failedCount++;
+        totalScoreSum += res.score;
+
+        const tr = document.createElement("tr");
+        tr.className = isPass ? "hover:bg-slate-50/80" : "bg-rose-50/20 hover:bg-rose-50/40";
+
+        const dimBadgesHtml = [
+          { label: "Stress", ok: res.dimensions.stress?.passed },
+          { label: "Beg", ok: res.dimensions.beginning?.passed },
+          { label: "End", ok: res.dimensions.ending?.passed },
+          { label: "Vowel", ok: res.dimensions.vowel?.passed }
+        ]
+          .map(
+            (d) => `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${
+              d.ok
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-rose-50 text-rose-700 border border-rose-200"
+            }">
+              ${d.ok ? "✓" : "✗"} ${d.label}
+            </span>
+          `
+          )
+          .join("");
+
+        const errorsHtml =
+          res.errorIdentifications && res.errorIdentifications.length > 0
+            ? `<ul class="mt-1.5 text-xs text-rose-700 list-disc list-inside space-y-0.5">
+                ${res.errorIdentifications.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}
+               </ul>`
+            : "";
+
+        tr.innerHTML = `
+          <td class="py-3.5 px-4 sm:px-5 font-mono font-bold text-slate-500">${index + 1}</td>
+          <td class="py-3.5 px-4">
+            <div class="font-bold text-slate-900 text-base">${escapeHtml(res.word)}</div>
+            <div class="text-xs font-semibold text-indigo-700 mt-0.5">${escapeHtml(res.syllableStressDisplay)}</div>
+          </td>
+          <td class="py-3.5 px-4">
+            <div class="flex flex-wrap gap-1.5 max-w-[230px]">
+              ${dimBadgesHtml}
+            </div>
+          </td>
+          <td class="py-3.5 px-4 text-center font-mono text-base font-extrabold ${
+            isPass ? "text-emerald-700" : "text-rose-700"
+          }">
+            ${res.score} / 10
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
+              isPass
+                ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                : "bg-rose-100 text-rose-800 border border-rose-300"
+            }">
+              ${res.status}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 max-w-xs">
+            <p class="font-semibold text-slate-900 text-sm">${escapeHtml(res.feedback)}</p>
+            ${errorsHtml}
+          </td>
+          <td class="py-3.5 px-4 sm:px-5 text-center no-print">
+            ${
+              res.audioUrl
+                ? `<button type="button" data-audio-url="${res.audioUrl}" class="btn-table-play min-h-[38px] px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs inline-flex items-center gap-1 transition">
+                    ▶ Play
+                   </button>`
+                : `<span class="text-xs text-slate-400">No clip</span>`
+            }
+          </td>
+        `;
+
+        el.wordResultsTbody.appendChild(tr);
+      });
+
+      // Attach audio playback handlers in table
+      el.wordResultsTbody.querySelectorAll(".btn-table-play").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          playRecordedAudio(btn.getAttribute("data-audio-url"));
+        });
+      });
+
+      // Populate Overall Summary Table
+      const overallMean = totalWords > 0 ? totalScoreSum / totalWords : 0;
+      const overallRounded = overallMean.toFixed(1);
+      const overallPassed = overallMean >= 6.0;
+
+      el.reportDate.textContent = new Date().toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      el.sumStudentName.textContent = state.studentName;
+      el.sumFolder.textContent = `${state.studentClass} — M.5 Stress folder`;
+      el.sumTotalWords.textContent = totalWords;
+      el.sumPassedWords.textContent = passedCount;
+      el.sumFailedWords.textContent = failedCount;
+      el.sumOverallScore.textContent = `${overallRounded} / 10`;
+
+      el.sumOverallStatus.textContent = overallPassed ? "PASS" : "FAIL";
+      el.sumOverallStatus.className = overallPassed
+        ? "inline-flex items-center px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300"
+        : "inline-flex items-center px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300";
+
+      goToStep(3);
+    }
+
+    /**
+     * ============================================================================
+     * EVENT LISTENERS & INITIALIZATION
+     * ============================================================================
+     */
+
+    el.btnLoadSample.addEventListener("click", () => {
+      state.words = [...SAMPLE_WORDS];
+      renderWordChips();
+      showToast("Loaded 6 multi-syllable M.5 sample words.", "success");
+    });
+
+    el.btnClearWords.addEventListener("click", () => {
+      state.words = [];
+      renderWordChips();
+    });
+
+    el.btnAddWords.addEventListener("click", () => {
+      parseAndAddWords(el.wordInput.value);
+    });
+
+    el.wordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        parseAndAddWords(el.wordInput.value);
+      }
+    });
+
+    el.btnStartTest.addEventListener("click", () => {
+      const name = el.studentName.value.trim();
+      const cls = el.studentClass.value.trim() || "M.5";
+
+      if (!name) {
+        el.studentName.focus();
+        showToast("Please fill in the Student Name before starting.", "warning");
+        return;
+      }
+
+      // If user typed words in textarea without clicking "Add Words", parse them automatically
+      if (el.wordInput.value.trim().length > 0) {
+        parseAndAddWords(el.wordInput.value);
+      }
+
+      if (state.words.length === 0) {
+        showToast("Please enter at least one multi-syllable word (or load sample words).", "warning");
+        return;
+      }
+
+      const invalidWords = state.words.filter((w) => estimateSyllables(w) < 2);
+      if (invalidWords.length > 0) {
+        showToast(
+          `Remove 1-syllable word(s) (${invalidWords.join(", ")}). All words must have at least 2 syllables.`,
+          "error"
+        );
+        return;
+      }
+
+      state.studentName = name;
+      state.studentClass = cls;
+      state.currentIndex = 0;
+      state.results = new Array(state.words.length).fill(null);
+
+      goToStep(2);
+      renderTestWorkspace();
+    });
+
+    el.btnBackToSetup.addEventListener("click", () => {
+      if (state.isRecording) return;
+      goToStep(1);
+    });
+
+    el.btnListenRef.addEventListener("click", () => {
+      const targetWord = state.words[state.currentIndex];
+      if (targetWord) speakReferenceWord(targetWord);
+    });
+
+    el.btnRecord.addEventListener("click", startRecording);
+    el.btnStop.addEventListener("click", stopRecording);
+    el.btnSimulateShort.addEventListener("click", simulateShortClickTest);
+
+    el.btnRerecordWord.addEventListener("click", () => {
+      state.results[state.currentIndex] = null;
+      renderTestWorkspace();
+    });
+
+    el.btnNextWord.addEventListener("click", () => {
+      if (state.currentIndex < state.words.length - 1) {
+        state.currentIndex += 1;
+        renderTestWorkspace();
+      } else {
+        renderFinalReport();
+      }
+    });
+
+    el.btnPrintReport.addEventListener("click", () => {
+      window.print();
+    });
+
+    el.btnNewTest.addEventListener("click", () => {
+      state.results = [];
+      state.currentIndex = 0;
+      goToStep(1);
+    });
+
+    window.addEventListener("resize", () => {
+      if (!el.step2.classList.contains("hidden")) {
+        resizeCanvas();
+        if (!state.isRecording) drawIdleWaveform();
+      }
+    });
+
+    // Initialize default state
+    window.addEventListener("load", () => {
+      renderWordChips();
+      resizeCanvas();
+      drawIdleWaveform();
+    });
+  </script>
+</body>
+</html>
